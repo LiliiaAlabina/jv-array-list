@@ -1,13 +1,11 @@
 package core.basesyntax;
 
-import java.util.Arrays;
-
 public class ArrayList<T> implements List<T> {
     private static final int DEFAULT_CAPACITY = 10;
     private Object[] arrayList = new Object[DEFAULT_CAPACITY];
     private int size = 0;
 
-    private int GROWTH_MULTIPLIER() {
+    private int growthMultiplier() {
         return arrayList.length + arrayList.length / 2;
     }
 
@@ -20,7 +18,7 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public void add(T value, int index) {
-        validateIndex(index);
+        validateIndexForAdd(index);
         grow();
         System.arraycopy(arrayList, index, arrayList, index + 1, size - index);
         arrayList[index] = value;
@@ -50,14 +48,14 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public void set(T value, int index) {
-        validateIndexForAdd(index);
+        validateIndex(index);
         arrayList[index] = value;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public T remove(int index) {
-        validateIndexForAdd(index);
+        validateIndex(index);
         final T removedElement = (T) arrayList[index];
         int numMoved = size - index - 1;
         if (numMoved > 0) {
@@ -90,21 +88,23 @@ public class ArrayList<T> implements List<T> {
 
     private void grow() {
         if (size == arrayList.length) {
-            Object[] newArray = new Object[GROWTH_MULTIPLIER()];
-            System.arraycopy(arrayList, 0, newArray, 0,GROWTH_MULTIPLIER());
+            Object[] newArray = new Object[growthMultiplier()];
+            System.arraycopy(arrayList, 0, newArray, 0, arrayList.length);
             arrayList = newArray;
         }
     }
 
     private void validateIndex(int index) {
         if (index < 0 || index >= size) {
-            throw new ArrayListIndexOutOfBoundsException("Index " + index + " out of bounds for size " + size);
+            throw new ArrayListIndexOutOfBoundsException("Index " + index
+                    + " out of bounds for size " + size);
         }
     }
 
     private void validateIndexForAdd(int index) {
         if (index < 0 || index > size) {
-            throw new ArrayListIndexOutOfBoundsException("Index " + index + " out of bounds for size " + size);
+            throw new ArrayListIndexOutOfBoundsException("Index " + index
+                    + " out of bounds for size " + size);
         }
     }
 
