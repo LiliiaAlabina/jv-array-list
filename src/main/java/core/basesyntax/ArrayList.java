@@ -7,28 +7,24 @@ public class ArrayList<T> implements List<T> {
     private Object[] arrayList = new Object[DEFAULT_CAPACITY];
     private int size = 0;
 
+    private int GROWTH_MULTIPLIER() {
+        return arrayList.length + arrayList.length / 2;
+    }
+
     @Override
     public void add(T value) {
-        if (size == arrayList.length) {
-            grow();
-        }
+        grow();
         arrayList[size] = value;
         size++;
     }
 
     @Override
     public void add(T value, int index) {
-        if (index >= 0 && index <= size) {
-            if (size == arrayList.length) {
-                grow();
-            }
-            System.arraycopy(arrayList, index, arrayList, index + 1, size - index);
-            arrayList[index] = value;
-            size++;
-        } else {
-            throw new ArrayListIndexOutOfBoundsException("Index " + index
-                    + " out of bounds for size " + size);
-        }
+        validateIndex(index);
+        grow();
+        System.arraycopy(arrayList, index, arrayList, index + 1, size - index);
+        arrayList[index] = value;
+        size++;
     }
 
     @Override
@@ -54,30 +50,22 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public void set(T value, int index) {
-        if (index >= 0 && index < size) {
-            arrayList[index] = value;
-        } else {
-            throw new ArrayListIndexOutOfBoundsException("Index " + index
-                    + " out of bounds for size " + size);
-        }
+        validateIndexForAdd(index);
+        arrayList[index] = value;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public T remove(int index) {
-        if (index >= 0 && index < size) {
-            final T removedElement = (T) arrayList[index];
-            int numMoved = size - index - 1;
-            if (numMoved > 0) {
-                System.arraycopy(arrayList, index + 1, arrayList, index, numMoved);
-            }
-            size--;
-            arrayList[size] = null;
-            return removedElement;
-        } else {
-            throw new ArrayListIndexOutOfBoundsException("Index " + index
-                    + " out of bounds for size " + size);
+        validateIndexForAdd(index);
+        final T removedElement = (T) arrayList[index];
+        int numMoved = size - index - 1;
+        if (numMoved > 0) {
+            System.arraycopy(arrayList, index + 1, arrayList, index, numMoved);
         }
+        size--;
+        arrayList[size] = null;
+        return removedElement;
     }
 
     @Override
@@ -101,8 +89,23 @@ public class ArrayList<T> implements List<T> {
     }
 
     private void grow() {
-        int newCapacity = arrayList.length + arrayList.length / 2;
-        arrayList = Arrays.copyOf(arrayList, newCapacity);
+        if (size == arrayList.length) {
+            Object[] newArray = new Object[GROWTH_MULTIPLIER()];
+            System.arraycopy(arrayList, 0, newArray, 0,GROWTH_MULTIPLIER());
+            arrayList = newArray;
+        }
+    }
+
+    private void validateIndex(int index) {
+        if (index < 0 || index >= size) {
+            throw new ArrayListIndexOutOfBoundsException("Index " + index + " out of bounds for size " + size);
+        }
+    }
+
+    private void validateIndexForAdd(int index) {
+        if (index < 0 || index > size) {
+            throw new ArrayListIndexOutOfBoundsException("Index " + index + " out of bounds for size " + size);
+        }
     }
 
     private boolean isEquals(Object a, Object b) {
